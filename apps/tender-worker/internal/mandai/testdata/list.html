@@ -1,0 +1,494 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>WRS Source Key : Business Opportunities</title>
+<script type="text/javascript" src="esources/js/jquery/jquery-latest.js"></script>
+<script type="text/javascript" src="esources/js/jquery/jquery.dataTables.nightly.js"></script>
+<link href="bootstrap/css/bootstrap.css" rel="stylesheet" />	
+<link href="bootstrap/css/bootstrap-theme.css" rel="stylesheet" />
+<link href="css/custom-wrs-theme.css" rel="stylesheet" />
+<style type="text/css">
+div#wrap{
+	width: 960px;
+	background: white;
+	margin: 0 auto;	
+}
+table.listing{
+	margin: auto; 
+	border-collapse: collapse;
+}
+
+table.listing tr td{
+	margin: 30px;
+}
+
+div#listContainer{
+	margin: 0 auto;
+}
+
+div#bannerContainer{
+	width: 900px;
+	margin: 0 auto;
+}
+
+
+div#listContainer table th{
+	background-color: #8A6F25;
+	padding: .9em 10px; 
+	color: #ffffff;
+	text-align:left;
+}
+div#listContainer table td{	
+	border-bottom: 1px solid #CCE0FF; 
+	border-top: 1px solid #CCE0FF;	
+	padding: .6em 10px;
+	text-align:left;
+}
+div#listContainer table td a{
+	text-decoration:none; color:#f26a3d;
+}
+div#listContainer table td a:hover{
+	text-decoration:underline;color:#f26a3d;
+}
+div.dataTables_length{
+	padding: 10px;	
+	width: 50%;
+	float: left;
+}
+
+div.dataTables_filter{
+	padding:10px;
+	text-align: right;
+}
+div.dataTables_info{
+	float:left;
+	padding:10px;
+	color:#27231B;
+	font-weight: bold;
+}
+div.dataTables_paginate{
+	width:120px;
+	float:right;
+	padding-left: 10px;
+	padding-right: 5px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.paginate_disabled_previous, .paginate_enabled_previous, .paginate_disabled_next, .paginate_enabled_next{
+	height: 18px;		
+}
+
+.paginate_disabled_previous{	
+	background-image: url("images/back_disabled.jpg");
+	width:70px;
+	background-repeat: no-repeat;
+	float: left;
+}
+
+.paginate_enabled_previous{	
+	background-image: url("images/back_enabled.jpg");
+	width:70px;
+	background-repeat: no-repeat;
+	float: left;
+}
+
+.paginate_disabled_next{
+	background-image: url("images/forward_disabled.jpg");
+	width:44px;
+	background-repeat: no-repeat;
+	float: right;
+}
+
+.paginate_enabled_next{
+	background-image: url("images/forward_enabled.jpg");
+	width:44px;
+	background-repeat: no-repeat;
+	float: right;
+}
+.footer {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	padding-top: 1em;
+	color: #6C717A;
+	padding: 10px;
+}
+.paginate_active, .paginate_button{
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.paginate_button{
+	cursor:pointer;
+}
+.paginate_active{
+	background-color: #194409;
+	color: #fff;
+}
+
+.next, .last, .previous, .first{
+	width: 30px;
+	border: 1px solid #eee; 
+	padding: 5px;
+}
+div.dataTables_paginate{
+	width: auto;
+	padding-top: 10px;
+}
+.paginate_button_disabled{
+	background-color: #ffffff;
+	color: #A4A4A4;	
+	cursor:auto;
+}
+.paginate_button_enabled{
+	background-color: #205E09;
+	color: rgb(90, 107, 165);
+	cursor:pointer;
+}
+div#listContainer table tbody tr:odd{
+	background-color: rgb(208, 222, 245);
+}
+div#listContainer table tbody tr td{
+	color: #3B2407;
+}
+.header{
+	color: #5a6ba5;
+}
+.ellipsis_control{
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 250px;
+    display: block;
+    overflow: hidden;
+}
+.panel{
+	margin-bottom : 10px !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+	border: 1px solid #f0f0f0 !important;
+}
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+  padding-left: 5px;
+   padding-right: 5px;
+}
+.form-horizontal .form-group {
+  margin-left: -5px;
+  margin-right: -5px;
+}
+</style>
+<script>
+
+$(document).ready(function(){
+	$('#rfqTender').dataTable(
+			{"bSort": false,
+			"sPaginationType": "full_numbers",
+			"aoColumns": [
+			              null,
+			              null,
+			              null,
+			              null,
+			              null,
+			              null,
+			              null,
+			              { "bSearchable": false }]	         
+		});
+});
+
+function viewDetail(docID) {
+	document.bo.target = "boDetail";
+	document.bo.documentID.value=docID;
+	window.open('','boDetail','width=700,height=650,status=yes,titlebar=no,toolbar=no,location=no,status=no,resizable=yes,menubar=no');
+	document.bo.submit();
+}
+
+</script>
+</head>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<div class="panel-default">
+<div class="panel-body">
+<div class="container">
+	<div class="row">
+		<div class="col-md-12 col-md-offset-0">
+			<div class="panel" style="border: none !important">
+				<img class="img-responsive" src="images/portal-header.jpg" />
+			</div>
+		</div>
+	</div>
+<div class="row">
+	<div class="col-md-12 col-md-offset-0">
+		<div class="panel panel-default">
+		<div class="panel-heading">
+			<span class="glyphicon glyphicon-thumbs-up"></span> Business Opportunities
+		</div>
+		<div id="panel-body">
+			<form name="bo" method="post" action="businessOpportunityView.jsp">
+			<input name="documentID" type="hidden">
+			<table id="rfqTender" class="table">
+				<thead>
+					<tr class="ui-widget-header-local">	
+						<th valign="top" width="15%">Calling Entity</th>					
+						<th valign="top" width="15%">Ref. No.</th>
+						<th valign="top" width="7.5%">Doc. Type</th>
+						<th valign="top" width="12.5%">Product Category</th>
+						<th valign="top" width="25%">Description</th>
+						<th valign="top" width="10%">Start Date</th>
+						<th valign="top" width="10%">Close Date</th>
+						<th valign="top" width="5%">Action</th>
+					</tr>
+				</thead>
+				<tbody>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-ZOO-Q26-06-01911</td>
+						<td valign="top">RFQ</td>
+						<td valign="top"> Furniture/Wood/Wood Products</td>
+						<td valign="top">Supply and Delivery of Wood Chips within Animal Exhibits & landscape Habitats across MWG</td>
+						<td valign="top">26 Jun 2026 14:00</td>
+						<td valign="top">06 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('22b4e640-f2e1-468b-bbc2-b51f985729d2')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Mandai Park Development Pte Ltd</td>
+						<td valign="top">MPD-DT1-Q26-06-01943</td>
+						<td valign="top">RFQ</td>
+						<td valign="top"> Business Services</td>
+						<td valign="top">Provision of Scenic Construction for The Mischief Within @ Curiosity Cove</td>
+						<td valign="top">26 Jun 2026 14:00</td>
+						<td valign="top">09 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('2e9182c4-3229-4c5d-ba96-9f58f51f3d00')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-TS-Q26-06-01942</td>
+						<td valign="top">RFQ</td>
+						<td valign="top"> Business Services, Industrial Products &amp; Services [A-N], Industrial Products &amp; Services [O-Z]</td>
+						<td valign="top">Amazon River Quest, Vertical Vehicle Transportation Unit Annual maintenance 2026
+Prefer vendors with expertise and experience to perform as per job scope and service maintenance manual
+
+Work duration : 31 July 2026 to 11 Sep 2026
+</td>
+						<td valign="top">26 Jun 2026 14:00</td>
+						<td valign="top">10 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('c323d25f-6f0a-4c50-8b50-e62d76bce611')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-TS-Q26-06-01941</td>
+						<td valign="top">RFQ</td>
+						<td valign="top"> Business Services, Chemicals</td>
+						<td valign="top">To supply labour, tools and equipment for Pool cleaning at Amazon River Quest Ride (River Wonders) in August and September 2026
+
+Schedule of work : 31 August to 8 September 2026</td>
+						<td valign="top">26 Jun 2026 14:00</td>
+						<td valign="top">10 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('d7e0fb5c-c94b-4a9b-ad7b-9bd5f8640d04')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-ED-Q26-06-01936</td>
+						<td valign="top">RFQ</td>
+						<td valign="top"> Construction, Real Estate</td>
+						<td valign="top">RFQ for the upgrading works at Pygmy Hippo exhibit at Singapore Zoo</td>
+						<td valign="top">19 Jun 2026 14:00</td>
+						<td valign="top">29 Jun 2026 17:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('99b87655-2a57-415c-bb8b-25f2b46321ff')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Mandai Park Development Pte Ltd</td>
+						<td valign="top">MPD-IDA-T26-06-01934</td>
+						<td valign="top">Tender</td>
+						<td valign="top"> Business Services, Industrial Automation &amp; Products</td>
+						<td valign="top">DESIGN AND BUILD OF SHOE CONVEYOR SYSTEM WITH SPECIALIST INSTALLED CONVEYOR BELT SYSTEM AT CURIOSITY COVE, MANDAI WILDLIFE EAST</td>
+						<td valign="top">19 Jun 2026 09:00</td>
+						<td valign="top">03 Jul 2026 12:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('f4862a17-2ff0-4fa7-a191-8bc57d53b182')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-IS-T26-06-01925</td>
+						<td valign="top">Tender</td>
+						<td valign="top"> Business Services</td>
+						<td valign="top">Fabrication, Organisation, Planning, Management and Execution of Mandai ITB Asia 2026</td>
+						<td valign="top">18 Jun 2026 15:00</td>
+						<td valign="top">02 Jul 2026 15:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('f75fa0d6-ea15-473b-be19-8ee8f7553a54')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-IT-Q26-06-01918</td>
+						<td valign="top">RFQ</td>
+						<td valign="top"> Computers/Information Technology</td>
+						<td valign="top">Provision of Professional Services for Active Directory and Domain Controller Modernisation</td>
+						<td valign="top">18 Jun 2026 15:00</td>
+						<td valign="top">30 Jun 2026 15:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('131f6b10-0427-45af-bd19-64e6cd6df6a6')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Mandai Park Development Pte Ltd</td>
+						<td valign="top">WRS-FM-Q26-06-01931</td>
+						<td valign="top">RFQ</td>
+						<td valign="top"> Construction, Real Estate</td>
+						<td valign="top">Request Quotation for Construction of Mud Theming Floor Finishing at Forest Trek in Rainforest Wild Adventure West</td>
+						<td valign="top">17 Jun 2026 17:00</td>
+						<td valign="top">03 Jul 2026 17:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('6c8ff809-a60c-4a14-bb3f-f1f272f11f3a')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-ET-T26-06-01927</td>
+						<td valign="top">Tender</td>
+						<td valign="top"> Business Services</td>
+						<td valign="top">Tender for Daily Housekeeping & Conservancy Services (18 Months: 1 Sep 2026 to 29 Feb 2028) at 
+Reservoir Retreat at Mandai Wildlife EAST & Crocodile Lodge at Rainforest Wild Adventure EAST</td>
+						<td valign="top">17 Jun 2026 14:00</td>
+						<td valign="top">01 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('b310f58e-c7c0-4ca1-adde-b6095806a9cc')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-FnB-T26-06-01924</td>
+						<td valign="top">Tender</td>
+						<td valign="top"> Food &amp; Beverages</td>
+						<td valign="top">REQUEST FOR TENDER QUOTATION FOR THE SUPPLY OF HALAL DAIRY BEVERAGES AND HOT MIX POWDERED BEVERAGES TO MANDAI F&B OUTLETS FOR A PERIOD OF 2 YEAR COMMENCING FROM DATE OF AWARD.</td>
+						<td valign="top">17 Jun 2026 14:00</td>
+						<td valign="top">03 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('968b32b9-2df7-4f93-9240-ad08fb5657e3')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-DIGIMKT-T26-06-01915</td>
+						<td valign="top">Tender</td>
+						<td valign="top"> Business Services</td>
+						<td valign="top">Provision of Social Media Management and Listening Tool to Support Publishing Workflows and Reporting Across Mandai Wildlife Groups Channels and Social Listening for a period of 2+1+1 Years</td>
+						<td valign="top">15 Jun 2026 15:00</td>
+						<td valign="top">29 Jun 2026 15:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('326a06b5-f1da-498c-bf5a-1f80c345dee4')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-PAMKT-T26-06-01916</td>
+						<td valign="top">Tender</td>
+						<td valign="top"> Business Services</td>
+						<td valign="top">Provision of Photography and Videography Services for Mandai Wildlife Group for a period of 2+1 Years</td>
+						<td valign="top">15 Jun 2026 15:00</td>
+						<td valign="top">29 Jun 2026 15:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('e0de46f1-9529-455d-b41a-644014d26f78')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Singapore Zoological Gardens</td>
+						<td valign="top">WRS-Mkt-T26-06-01913</td>
+						<td valign="top">Tender</td>
+						<td valign="top"> Business Services</td>
+						<td valign="top">Provision of Mandai Wildlife Reserves Display Signages & Collaterals for a period of 12 months</td>
+						<td valign="top">12 Jun 2026 15:00</td>
+						<td valign="top">30 Jun 2026 15:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('e65e3d16-1402-4794-a904-9d15e96982ca')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Mandai Park Development Pte Ltd</td>
+						<td valign="top">WRS-TS-T26-05-01878</td>
+						<td valign="top">Tender (CHANGED)</td>
+						<td valign="top"> Automotives/Automotive Parts, Industrial Automation &amp; Products, Industrial Products &amp; Services [A-N], Industrial Products &amp; Services [O-Z], Transportation/Transport Equipment</td>
+						<td valign="top">Tender for Provision of SUPPLY & DELIVERY OF ELECTRIC PASSENGER TRAM SYSTEM (DUAL-DRIVE MODE), and SCHEDULE OF RATES FOR ITS SPARE PARTS.
+
+**This is strictly for QUALITY Submission only**.
+</td>
+						<td valign="top">18 May 2026 14:00</td>
+						<td valign="top">16 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('daa320c1-939c-44c2-b3ab-67933bf1abed')"  class="links" >View</a></td>
+					</tr>
+				
+					<tr>
+						<td valign="top">Mandai Park Development Pte Ltd</td>
+						<td valign="top">WRS-TS-T26-05-01879</td>
+						<td valign="top">Tender (CHANGED)</td>
+						<td valign="top"> Automotives/Automotive Parts, Industrial Automation &amp; Products, Industrial Products &amp; Services [A-N], Industrial Products &amp; Services [O-Z], Transportation/Transport Equipment</td>
+						<td valign="top">Tender for Provision of SUPPLY & DELIVERY OF ELECTRIC PASSENGER TRAM SYSTEM (DUAL-DRIVE MODE), and SCHEDULE OF RATES FOR ITS SPARE PARTS.
+
+**This is strictly for PRICE Submission only**.</td>
+						<td valign="top">18 May 2026 14:00</td>
+						<td valign="top">16 Jul 2026 14:00</td>
+						
+						
+						<td valign="top"><a href="javascript:viewDetail('45cab802-ccf8-4f7f-91c9-8ff11b90885c')"  class="links" >View</a></td>
+					</tr>
+				
+				</tbody>
+			</table>
+			</form>
+		</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="footer">
+<center>
+<span>
+	Copyright &#169; 2026 SESAMI (Singapore) Pte. Ltd. All rights reserved.
+	<br/>This portal is best viewed in Internet Explorer version 9 or higher, and Google Chrome.
+	| <a href="#" onclick="window.open('http://www.sesami.com/termsofusepop.html','','width=580,height=600,status=yes,toolbar=no,resizable=yes,menubar=no,scrollbars=yes')">Terms of Use</a>				
+	
+</span>	
+</center>
+</div>
+</div>
+</div>
+
+</body>
+</html>

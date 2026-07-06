@@ -1,0 +1,24 @@
+[
+  {
+    "_id": { "$oid": "6a2777680ae809d2a589e726" },
+    "guid": "9ef9c350-d9df-4a14-b54f-2a3b5bc8c234",
+    "tendernumber": "40008201",
+    "title": "<p><strong>Tuas Power Generation Pte. Ltd.</strong> invites eligible contractors to tender for:</p><p><strong>THE PROVISION OF FOUR (4) NEW KAESER SCREW AIR COMPRESSORS (CT NO. 40008201)</strong></p>",
+    "description": "<p><strong>THE PROVISION OF ENGINEERING, SUPPLY AND COMMISSIONING OF FOUR (4) NEW KAESER SCREW AIR COMPRESSORS</strong></p>",
+    "status": "ACTIVE",
+    "company": "TPG",
+    "tenderopendate": { "$date": "2026-06-19T08:00:00Z" },
+    "tenderclosedate": { "$date": "2026-07-10T11:00:00Z" }
+  },
+  {
+    "_id": { "$oid": "6a2777680ae809d2a589e727" },
+    "guid": "11112222-3333-4444-5555-666677778888",
+    "tendernumber": "40008202",
+    "title": "<p>Invitation to tender for SUPPLY OF SPARES</p>",
+    "description": "<p>SUPPLY OF SPARES &amp; CONSUMABLES</p>",
+    "status": "ACTIVE",
+    "company": "TPG",
+    "tenderopendate": { "$date": "2026-06-15T08:00:00Z" },
+    "tenderclosedate": { "$date": "2026-06-30T11:00:00Z" }
+  }
+]
