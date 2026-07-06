@@ -1,0 +1,6 @@
+# compiled binary
+embed-service
+embed-service.exe
+
+# model weights (~29 MB) — fetch with ./fetch-model.sh, not committed
+model/model.safetensors
