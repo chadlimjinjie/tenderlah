@@ -1,0 +1,926 @@
+basePath: /
+definitions:
+  db.KnowledgeArticle:
+    properties:
+      authorId:
+        type: string
+      category:
+        type: string
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      organizationId:
+        type: string
+      teamId:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  db.RssFeed:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      organizationId:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
+  db.Source:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      organizationId:
+        type: string
+      sourceType:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
+  db.SourceAnalysis:
+    properties:
+      analysisObject:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      model:
+        type: string
+      organizationId:
+        type: string
+      sourceId:
+        type: string
+      sourceTitle:
+        type: string
+      sourceUrl:
+        type: string
+      summary:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  knowledge.createBody:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      teamId:
+        type: string
+      title:
+        type: string
+    required:
+    - category
+    - content
+    - title
+    type: object
+  knowledge.updateBody:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      teamId:
+        type: string
+      title:
+        type: string
+    type: object
+  maintenance.maintenanceResponse:
+    properties:
+      enabled:
+        type: boolean
+      message:
+        type: string
+      updatedAt: {}
+    type: object
+  maintenance.setMaintenanceRequest:
+    properties:
+      enabled:
+        type: boolean
+      message:
+        type: string
+    type: object
+  mp_foc.analyseBody:
+    properties:
+      url:
+        type: string
+    required:
+    - url
+    type: object
+  mp_foc.analysisResult:
+    properties:
+      fearOfCrime:
+        $ref: '#/definitions/mp_foc.conceptScore'
+      moralPanic:
+        $ref: '#/definitions/mp_foc.conceptScore'
+    type: object
+  mp_foc.conceptScore:
+    properties:
+      indicators:
+        items:
+          type: string
+        type: array
+      score:
+        type: integer
+      summary:
+        type: string
+    type: object
+  news_values.analyseBody:
+    properties:
+      articleLink:
+        type: string
+    required:
+    - articleLink
+    type: object
+  news_values.newsValueResult:
+    properties:
+      definition:
+        type: string
+      explanation:
+        type: string
+      name:
+        type: string
+      score:
+        type: integer
+    type: object
+  personas.createBody:
+    properties:
+      background:
+        type: string
+      country:
+        type: string
+      dateOfBirth:
+        type: string
+      frustrations:
+        type: string
+      gender:
+        type: string
+      goals:
+        type: string
+      mbti:
+        type: string
+      name:
+        type: string
+      occupation:
+        type: string
+    required:
+    - name
+    type: object
+  personas.personaResponse:
+    properties:
+      background:
+        type: string
+      country:
+        type: string
+      createdAt:
+        type: string
+      dateOfBirth:
+        type: string
+      frustrations:
+        type: string
+      gender:
+        type: string
+      goals:
+        type: string
+      id:
+        type: string
+      mbti:
+        type: string
+      name:
+        type: string
+      occupation:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  personas.updateBody:
+    properties:
+      background:
+        type: string
+      country:
+        type: string
+      dateOfBirth:
+        type: string
+      frustrations:
+        type: string
+      gender:
+        type: string
+      goals:
+        type: string
+      mbti:
+        type: string
+      name:
+        type: string
+      occupation:
+        type: string
+    type: object
+  rss.createBody:
+    properties:
+      name:
+        type: string
+      url:
+        type: string
+    required:
+    - name
+    - url
+    type: object
+  rss.updateBody:
+    properties:
+      name:
+        type: string
+      url:
+        type: string
+    type: object
+  source_analyses.createBody:
+    properties:
+      article:
+        properties:
+          title:
+            type: string
+          url:
+            type: string
+        type: object
+      sourceId:
+        type: string
+    required:
+    - sourceId
+    type: object
+  sources.createBody:
+    properties:
+      description:
+        type: string
+      sourceType:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    required:
+    - sourceType
+    - title
+    - url
+    type: object
+  sources.updateBody:
+    properties:
+      description:
+        type: string
+      sourceType:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+host: localhost:4002
+info:
+  contact: {}
+  description: Midtone API server (Go rewrite)
+  title: Midtone API
+  version: 1.0.0
+paths:
+  /api/knowledge:
+    get:
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: string
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      - description: Filter by team (use 'org-wide' for unscoped)
+        in: query
+        name: teamId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List knowledge articles (paginated)
+      tags:
+      - Knowledge
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Article
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/knowledge.createBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.KnowledgeArticle'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a knowledge article
+      tags:
+      - Knowledge
+  /api/knowledge/{id}:
+    delete:
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a knowledge article
+      tags:
+      - Knowledge
+    get:
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.KnowledgeArticle'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a knowledge article
+      tags:
+      - Knowledge
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Article ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/knowledge.updateBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.KnowledgeArticle'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a knowledge article
+      tags:
+      - Knowledge
+  /api/maintenance/{scope}:
+    get:
+      parameters:
+      - description: Maintenance scope (e.g. portfolio)
+        in: path
+        name: scope
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/maintenance.maintenanceResponse'
+      summary: Get a scoped maintenance flag
+      tags:
+      - Maintenance
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Maintenance scope (e.g. portfolio)
+        in: path
+        name: scope
+        required: true
+        type: string
+      - description: Maintenance state
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/maintenance.setMaintenanceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/maintenance.maintenanceResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a scoped maintenance flag (admin only)
+      tags:
+      - Maintenance
+  /api/mp-foc:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: URL to analyse
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/mp_foc.analyseBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mp_foc.analysisResult'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Analyse a news article for Moral Panic vs Fear of Crime
+      tags:
+      - Mp Foc
+  /api/news-values:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Article URL
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/news_values.analyseBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/news_values.newsValueResult'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Score a news article against 12 news values
+      tags:
+      - News Values
+  /api/personas:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/personas.personaResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List personas
+      tags:
+      - Personas
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Persona
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/personas.createBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/personas.personaResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a persona
+      tags:
+      - Personas
+  /api/personas/{id}:
+    delete:
+      parameters:
+      - description: Persona ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+      summary: Delete a persona
+      tags:
+      - Personas
+    get:
+      parameters:
+      - description: Persona ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/personas.personaResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a persona
+      tags:
+      - Personas
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Persona ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/personas.updateBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/personas.personaResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a persona
+      tags:
+      - Personas
+  /api/rss:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.RssFeed'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List RSS feeds
+      tags:
+      - RSS Feeds
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: RSS Feed
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/rss.createBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.RssFeed'
+      summary: Create an RSS feed
+      tags:
+      - RSS Feeds
+  /api/rss/{id}:
+    delete:
+      parameters:
+      - description: Feed ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+      summary: Delete an RSS feed
+      tags:
+      - RSS Feeds
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Feed ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/rss.updateBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.RssFeed'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an RSS feed
+      tags:
+      - RSS Feeds
+  /api/source-analyses:
+    get:
+      parameters:
+      - description: Filter by source ID
+        in: query
+        name: sourceId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.SourceAnalysis'
+            type: array
+      summary: List source analyses
+      tags:
+      - Source Analyses
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Source to analyse
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/source_analyses.createBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.SourceAnalysis'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Run a source analysis
+      tags:
+      - Source Analyses
+  /api/sources:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Source'
+            type: array
+      summary: List sources
+      tags:
+      - Sources
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Source
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/sources.createBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/db.Source'
+      summary: Create a source
+      tags:
+      - Sources
+  /api/sources/{id}:
+    delete:
+      parameters:
+      - description: Source ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+      summary: Delete a source
+      tags:
+      - Sources
+    get:
+      parameters:
+      - description: Source ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Source'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a source
+      tags:
+      - Sources
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Source ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/sources.updateBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Source'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a source
+      tags:
+      - Sources
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
