@@ -65,7 +65,7 @@ func main() {
 
 	r.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	port := mustEnv("PORT", "4002")
+	port := mustEnv("PORT", "4003")
 	log.Printf("Listening on :%s", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal(err)
