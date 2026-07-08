@@ -31,17 +31,17 @@ func decodeTenderID(id string) string {
 }
 
 type Handler struct {
-	q                  *db.Queries
-	llm                *llm.Client
-	ollamaEmbedBaseURL string // apps/ollama (all-minilm) — distinct from llm's cloud chat endpoint, which serves no embedding models
-	inFlight           sync.Map // tender id -> struct{}, guards fetchDetails from concurrent runs
-	briefInFlight      sync.Map // tender id -> struct{}, guards generateBrief from concurrent runs
-	timelineInFlight   sync.Map // tender id -> struct{}, guards generateDeliveryTimeline from concurrent runs
-	matchInFlight      sync.Map // "userID:tenderID" -> struct{}, guards generateMatch from concurrent runs
+	q                *db.Queries
+	llm              *llm.Client
+	embedServiceURL  string   // apps/embed-service (potion-base-8M) — distinct from llm's cloud chat endpoint, which serves no embedding models
+	inFlight         sync.Map // tender id -> struct{}, guards fetchDetails from concurrent runs
+	briefInFlight    sync.Map // tender id -> struct{}, guards generateBrief from concurrent runs
+	timelineInFlight sync.Map // tender id -> struct{}, guards generateDeliveryTimeline from concurrent runs
+	matchInFlight    sync.Map // "userID:tenderID" -> struct{}, guards generateMatch from concurrent runs
 }
 
-func New(q *db.Queries, llmClient *llm.Client, ollamaEmbedBaseURL string) *Handler {
-	return &Handler{q: q, llm: llmClient, ollamaEmbedBaseURL: ollamaEmbedBaseURL}
+func New(q *db.Queries, llmClient *llm.Client, embedServiceURL string) *Handler {
+	return &Handler{q: q, llm: llmClient, embedServiceURL: embedServiceURL}
 }
 
 func (h *Handler) Register(rg *gin.RouterGroup) {

@@ -14,14 +14,11 @@ func TestEmbed(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			t.Fatalf("decode request: %v", err)
 		}
-		if req.Model != embedModel {
-			t.Fatalf("expected model %q, got %q", embedModel, req.Model)
-		}
-		if req.Input != "road resurfacing works" {
-			t.Fatalf("unexpected input: %q", req.Input)
+		if len(req.Texts) != 1 || req.Texts[0] != "road resurfacing works" {
+			t.Fatalf("unexpected texts: %q", req.Texts)
 		}
 		vec := make([]float32, embedDim)
-		json.NewEncoder(w).Encode(embedResponse{Embeddings: [][]float32{vec}})
+		json.NewEncoder(w).Encode(embedResponse{Vectors: [][]float32{vec}, Dim: embedDim})
 	}))
 	defer srv.Close()
 

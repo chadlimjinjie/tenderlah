@@ -60,8 +60,8 @@ func main() {
 
 	api := r.Group("/api")
 	maintenance.New(q).Register(api.Group("/maintenance"))
-	tenders.New(q, ollamaClient, mustEnv("OLLAMA_EMBED_BASE_URL", "http://localhost:11434")).Register(api.Group("/tenders"))
-	users.New(q, supabaseStorage, mustEnv("OLLAMA_EMBED_BASE_URL", "http://localhost:11434")).Register(api.Group("/users"))
+	tenders.New(q, ollamaClient, mustEnv("EMBED_SERVICE_URL", "http://localhost:4107")).Register(api.Group("/tenders"))
+	users.New(q, supabaseStorage, mustEnv("EMBED_SERVICE_URL", "http://localhost:4107")).Register(api.Group("/users"))
 
 	r.GET("/api/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

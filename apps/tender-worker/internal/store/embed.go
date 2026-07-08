@@ -9,26 +9,25 @@ import (
 	"net/http"
 )
 
-// embedDim is the fixed output size of Embed, matching all-minilm's
-// native dimensionality. The tender.embedding column type must match.
-const embedDim = 384
-
-const embedModel = "all-minilm"
+// embedDim is the fixed output size of Embed, matching embed-service's
+// potion-base-8M dimensionality. The tender.embedding column type must match.
+const embedDim = 256
 
 type embedRequest struct {
-	Model string `json:"model"`
-	Input string `json:"input"`
+	Texts []string `json:"texts"`
 }
 
 type embedResponse struct {
-	Embeddings [][]float32 `json:"embeddings"`
+	Vectors [][]float32 `json:"vectors"`
+	Dim     int         `json:"dim"`
 }
 
-// Embed calls Ollama's native embeddings endpoint to turn text into a
-// 384-dim vector. No retries — a single failed call is the caller's problem
-// (e.g. log and proceed with a NULL embedding).
+// Embed calls the internal embed-service to turn text into a 256-dim vector.
+// No retries — a single failed call is the caller's problem (e.g. log and
+// proceed with a NULL embedding). apiKey is unused (embed-service has no auth)
+// but kept for signature compatibility with the api-service copy.
 func Embed(ctx context.Context, baseURL, apiKey, text string) ([]float32, error) {
-	body, err := json.Marshal(embedRequest{Model: embedModel, Input: text})
+	body, err := json.Marshal(embedRequest{Texts: []string{text}})
 	if err != nil {
 		return nil, err
 	}
@@ -38,9 +37,6 @@ func Embed(ctx context.Context, baseURL, apiKey, text string) ([]float32, error)
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if apiKey != "" {
-		req.Header.Set("Authorization", "Bearer "+apiKey)
-	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -50,15 +46,15 @@ func Embed(ctx context.Context, baseURL, apiKey, text string) ([]float32, error)
 
 	if resp.StatusCode >= 400 {
 		b, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("ollama embed %d: %s", resp.StatusCode, string(b))
+		return nil, fmt.Errorf("embed-service %d: %s", resp.StatusCode, string(b))
 	}
 
 	var out embedResponse
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		return nil, err
 	}
-	if len(out.Embeddings) == 0 {
-		return nil, fmt.Errorf("ollama embed: empty response")
+	if len(out.Vectors) == 0 {
+		return nil, fmt.Errorf("embed-service: empty response")
 	}
-	return out.Embeddings[0], nil
+	return out.Vectors[0], nil
 }

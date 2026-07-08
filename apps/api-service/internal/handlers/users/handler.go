@@ -19,13 +19,13 @@ import (
 )
 
 type Handler struct {
-	q                  *db.Queries
-	storage            *storage.Client
-	ollamaEmbedBaseURL string // apps/ollama (all-minilm), for precomputing the profile embedding on save
+	q               *db.Queries
+	storage         *storage.Client
+	embedServiceURL string // apps/embed-service (potion-base-8M), for precomputing the profile embedding on save
 }
 
-func New(q *db.Queries, s *storage.Client, ollamaEmbedBaseURL string) *Handler {
-	return &Handler{q: q, storage: s, ollamaEmbedBaseURL: ollamaEmbedBaseURL}
+func New(q *db.Queries, s *storage.Client, embedServiceURL string) *Handler {
+	return &Handler{q: q, storage: s, embedServiceURL: embedServiceURL}
 }
 
 var allowedLogoTypes = map[string]string{"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
@@ -133,7 +133,7 @@ func (h *Handler) upsert(c *gin.Context) {
 	// description — must match the read-side weighting in the tenders handler.
 	// ponytail: best-effort embed; on failure the column stays NULL and the
 	// tenders list self-heals it on the next relevance read.
-	if vec, err := db.Embed(c, h.ollamaEmbedBaseURL, "", strings.Repeat(body.Industry+" ", 3)+deref(body.BusinessDescription)); err != nil {
+	if vec, err := db.Embed(c, h.embedServiceURL, "", strings.Repeat(body.Industry+" ", 3)+deref(body.BusinessDescription)); err != nil {
 		log.Printf("users: onboarding embed: %v", err)
 	} else if err := h.q.SetUserOnboardingEmbedding(c, user.ID, pgvector.NewVector(vec)); err != nil {
 		log.Printf("users: store onboarding embed: %v", err)

@@ -25,10 +25,11 @@ CREATE TABLE IF NOT EXISTS user_onboarding (
     "companySize"           text, -- e.g. "1-10","11-50","51-200","201-500","500+"
     "geographicCoverage"    text, -- free text, e.g. "Singapore-wide", "Jurong East"
     "preferredContractSize" text, -- e.g. "<50K","50K-200K","200K-1M",">1M"
-    -- Precomputed all-minilm embedding of (industry×3 + businessDescription),
-    -- written on profile save. Same vector space as tender.embedding so tender
-    -- relevance ranking can cosine-compare without a per-request embed call.
-    "embedding"    vector(384),
+    -- Precomputed embed-service (potion-base-8M, 256-dim) embedding of
+    -- (industry×3 + businessDescription), written on profile save. Same vector
+    -- space as tender.embedding so tender relevance ranking can cosine-compare
+    -- without a per-request embed call.
+    "embedding"    vector(256),
     "createdAt"    timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt"    timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -39,7 +40,7 @@ ALTER TABLE user_onboarding
     ADD COLUMN IF NOT EXISTS "companySize" text,
     ADD COLUMN IF NOT EXISTS "geographicCoverage" text,
     ADD COLUMN IF NOT EXISTS "preferredContractSize" text,
-    ADD COLUMN IF NOT EXISTS "embedding" vector(384);
+    ADD COLUMN IF NOT EXISTS "embedding" vector(256);
 
 -- Owned/written by apps/tender-worker (EnsureSchema). Declared here for SQLC
 -- codegen only — api-server-go reads it but never creates/migrates it. Unified
@@ -64,7 +65,7 @@ CREATE TABLE IF NOT EXISTS tender (
     "ai_brief_at"        timestamptz,
     "ai_delivery_timeline"    jsonb,
     "ai_delivery_timeline_at" timestamptz,
-    "embedding"          vector(128),
+    "embedding"          vector(256),
     "first_seen_at"      timestamptz NOT NULL DEFAULT now(),
     "last_seen_at"       timestamptz NOT NULL DEFAULT now()
 );

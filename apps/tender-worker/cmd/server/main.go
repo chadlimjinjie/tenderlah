@@ -56,11 +56,10 @@ func main() {
 	}
 	// Not fatal-if-missing: Upsert degrades to a NULL embedding when the embed
 	// call fails, so ingestion still proceeds without it. Points at the
-	// internal apps/ollama service (all-minilm), not Ollama's hosted
-	// cloud API — the cloud API only serves chat models, no embeddings.
-	ollamaEmbedBaseURL := os.Getenv("OLLAMA_EMBED_BASE_URL")
-	if ollamaEmbedBaseURL == "" {
-		ollamaEmbedBaseURL = "http://localhost:11434"
+	// internal apps/embed-service (potion-base-8M, 256-dim).
+	embedServiceURL := os.Getenv("EMBED_SERVICE_URL")
+	if embedServiceURL == "" {
+		embedServiceURL = "http://localhost:4107"
 	}
 
 	ctx := context.Background()
@@ -83,7 +82,7 @@ func main() {
 	}
 
 	if *backfillEmbeddings {
-		if err := store.BackfillEmbeddings(ctx, pool, ollamaEmbedBaseURL, ""); err != nil {
+		if err := store.BackfillEmbeddings(ctx, pool, embedServiceURL, ""); err != nil {
 			log.Fatalf("backfill: %v", err)
 		}
 		return
@@ -97,10 +96,10 @@ func main() {
 	}
 
 	log.Printf("tender-worker: %d source(s)", len(sources))
-	pollAll(ctx, pool, ollamaEmbedBaseURL)
+	pollAll(ctx, pool, embedServiceURL)
 }
 
-func pollAll(ctx context.Context, pool *pgxpool.Pool, ollamaEmbedBaseURL string) {
+func pollAll(ctx context.Context, pool *pgxpool.Pool, embedServiceURL string) {
 	for name, fetch := range sources {
 		records, err := fetch(ctx)
 		if err != nil {
@@ -109,7 +108,7 @@ func pollAll(ctx context.Context, pool *pgxpool.Pool, ollamaEmbedBaseURL string)
 		}
 		var n int
 		for _, r := range records {
-			if err := store.Upsert(ctx, pool, ollamaEmbedBaseURL, "", r); err != nil {
+			if err := store.Upsert(ctx, pool, embedServiceURL, "", r); err != nil {
 				log.Printf("%s: upsert %s: %v", name, r.SourceID, err)
 				continue
 			}

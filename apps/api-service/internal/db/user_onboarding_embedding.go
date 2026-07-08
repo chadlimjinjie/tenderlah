@@ -10,8 +10,9 @@ import (
 
 // Hand-written (not sqlc) because sqlc drops `vector` columns from generated
 // models — same reason tenders_search.go is hand-written. The stored vector is
-// an all-minilm embedding of the user's onboarding profile, kept in the same
-// space as tender.embedding so relevance ranking can cosine-compare the two.
+// an embed-service (potion-base-8M, 256-dim) embedding of the user's onboarding
+// profile, kept in the same space as tender.embedding so relevance ranking can
+// cosine-compare the two.
 
 // SetUserOnboardingEmbedding stores the profile embedding for a user.
 func (q *Queries) SetUserOnboardingEmbedding(ctx context.Context, userID string, vec pgvector.Vector) error {

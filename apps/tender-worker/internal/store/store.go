@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS tender (
     "ai_brief_at"        timestamptz,
     "ai_delivery_timeline"    jsonb,
     "ai_delivery_timeline_at" timestamptz,
-    "embedding"          vector(384),
+    "embedding"          vector(256),
     "first_seen_at"      timestamptz NOT NULL DEFAULT now(),
     "last_seen_at"       timestamptz NOT NULL DEFAULT now()
 );`
@@ -96,7 +96,7 @@ func EnsureSchema(ctx context.Context, pool *pgxpool.Pool) error {
 		return err
 	}
 	// Older deployments already have the table without the column.
-	if _, err := pool.Exec(ctx, `ALTER TABLE tender ADD COLUMN IF NOT EXISTS embedding vector(384);`); err != nil {
+	if _, err := pool.Exec(ctx, `ALTER TABLE tender ADD COLUMN IF NOT EXISTS embedding vector(256);`); err != nil {
 		return err
 	}
 	_, err := pool.Exec(ctx, `CREATE INDEX IF NOT EXISTS tender_embedding_idx ON tender USING hnsw (embedding vector_cosine_ops);`)
