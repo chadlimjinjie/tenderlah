@@ -1,11 +1,14 @@
 {
+  "scripts": {
+    "tender-worker": "node scripts/tender-worker-dev.mjs"
+  },
   "devDependencies": {
     "turbo": "^2.10.3"
   },
   "devEngines": {
     "packageManager": {
       "name": "npm",
-      "version": "8.5.0"
+      "version": "11.13.0"
     }
   },
   "workspaces": [
