@@ -12,13 +12,16 @@ use super::models::UserOnboarding;
 // (dropped by sqlc; never returned by the API).
 
 pub async fn get_user_onboarding(pool: &PgPool, user_id: &str) -> Result<UserOnboarding, sqlx::Error> {
-    sqlx::query_as(
+    let mut tx = pool.begin().await?;
+    let out = sqlx::query_as(
         r#"SELECT "userId", "accountType", "orgName", "businessName", "businessDescription", "industry", "logoUrl", "companySize", "geographicCoverage", "preferredContractSize", "createdAt", "updatedAt" FROM user_onboarding WHERE "userId" = $1"#,
     )
     .bind(user_id)
     .persistent(false)
-    .fetch_one(pool)
-    .await
+    .fetch_one(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(out)
 }
 
 pub struct UpsertUserOnboardingParams<'a> {
@@ -37,7 +40,8 @@ pub async fn upsert_user_onboarding(
     pool: &PgPool,
     p: UpsertUserOnboardingParams<'_>,
 ) -> Result<UserOnboarding, sqlx::Error> {
-    sqlx::query_as(
+    let mut tx = pool.begin().await?;
+    let out = sqlx::query_as(
         r#"INSERT INTO user_onboarding ("userId", "accountType", "orgName", "businessName", "businessDescription", "industry", "companySize", "geographicCoverage", "preferredContractSize", "createdAt", "updatedAt")
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT ("userId") DO UPDATE
@@ -55,8 +59,10 @@ RETURNING "userId", "accountType", "orgName", "businessName", "businessDescripti
     .bind(p.geographic_coverage)
     .bind(p.preferred_contract_size)
     .persistent(false)
-    .fetch_one(pool)
-    .await
+    .fetch_one(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(out)
 }
 
 pub async fn set_user_onboarding_logo(
@@ -64,7 +70,8 @@ pub async fn set_user_onboarding_logo(
     user_id: &str,
     logo_url: &str,
 ) -> Result<UserOnboarding, sqlx::Error> {
-    sqlx::query_as(
+    let mut tx = pool.begin().await?;
+    let out = sqlx::query_as(
         r#"UPDATE user_onboarding SET "logoUrl" = $2, "updatedAt" = CURRENT_TIMESTAMP
 WHERE "userId" = $1
 RETURNING "userId", "accountType", "orgName", "businessName", "businessDescription", "industry", "logoUrl", "companySize", "geographicCoverage", "preferredContractSize", "createdAt", "updatedAt""#,
@@ -72,33 +79,38 @@ RETURNING "userId", "accountType", "orgName", "businessName", "businessDescripti
     .bind(user_id)
     .bind(logo_url)
     .persistent(false)
-    .fetch_one(pool)
-    .await
+    .fetch_one(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(out)
 }
 
 /// Stores the profile embedding for a user. The vector is an embed-service
 /// (potion-base-8M, 256-dim) embedding of the onboarding profile, in the same
 /// space as tender.embedding so relevance ranking can cosine-compare the two.
 pub async fn set_user_onboarding_embedding(pool: &PgPool, user_id: &str, vec: Vector) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
     sqlx::query(r#"UPDATE user_onboarding SET "embedding" = $2 WHERE "userId" = $1"#)
         .bind(user_id)
         .bind(vec)
         .persistent(false)
-        .execute(pool)
-        .await
-        .map(|_| ())
+        .execute(&mut *tx)
+        .await?;
+    tx.commit().await
 }
 
 /// Returns the stored profile embedding, or None when the user has no
 /// onboarding row or the column is still NULL (onboarded before embeddings
 /// were precomputed). Read as text and parsed, matching the Go path.
 pub async fn get_user_onboarding_embedding(pool: &PgPool, user_id: &str) -> Result<Option<Vector>, sqlx::Error> {
+    let mut tx = pool.begin().await?;
     let s: Option<Option<String>> =
         sqlx::query_scalar(r#"SELECT "embedding"::text FROM user_onboarding WHERE "userId" = $1"#)
             .bind(user_id)
             .persistent(false)
-            .fetch_optional(pool)
+            .fetch_optional(&mut *tx)
             .await?;
+    tx.commit().await?;
     let Some(Some(text)) = s else { return Ok(None) };
     Ok(parse_vector_text(&text))
 }

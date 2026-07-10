@@ -161,20 +161,29 @@ pub async fn list_tenders_search(pool: &PgPool, p: &ListTendersSearchParams) -> 
     qb.push_bind(p.limit);
     qb.push(" OFFSET ");
     qb.push_bind(p.offset);
-    qb.build_query_as::<Tender>().persistent(false).fetch_all(pool).await
+    let mut tx = pool.begin().await?;
+    let out = qb.build_query_as::<Tender>().persistent(false).fetch_all(&mut *tx).await?;
+    tx.commit().await?;
+    Ok(out)
 }
 
 pub async fn count_tenders_search(pool: &PgPool, p: &ListTendersSearchParams) -> Result<i64, sqlx::Error> {
     let mut qb = QueryBuilder::new("SELECT count(*) FROM tender");
     push_where(&mut qb, p);
-    qb.build_query_scalar::<i64>().persistent(false).fetch_one(pool).await
+    let mut tx = pool.begin().await?;
+    let out = qb.build_query_scalar::<i64>().persistent(false).fetch_one(&mut *tx).await?;
+    tx.commit().await?;
+    Ok(out)
 }
 
 pub async fn list_distinct_tender_statuses(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
-    sqlx::query_scalar("SELECT DISTINCT status FROM tender WHERE status != '' ORDER BY status")
+    let mut tx = pool.begin().await?;
+    let out = sqlx::query_scalar("SELECT DISTINCT status FROM tender WHERE status != '' ORDER BY status")
         .persistent(false)
-        .fetch_all(pool)
-        .await
+        .fetch_all(&mut *tx)
+        .await?;
+    tx.commit().await?;
+    Ok(out)
 }
 
 pub async fn list_distinct_tender_sources(pool: &PgPool) -> Result<Vec<String>, sqlx::Error> {
@@ -184,7 +193,10 @@ pub async fn list_distinct_tender_sources(pool: &PgPool) -> Result<Vec<String>, 
         query.push_str(" AND source <> 'gebiz'");
     }
     query.push_str(" ORDER BY source");
-    sqlx::query_scalar(sqlx::AssertSqlSafe(query)).persistent(false).fetch_all(pool).await
+    let mut tx = pool.begin().await?;
+    let out = sqlx::query_scalar(sqlx::AssertSqlSafe(query)).persistent(false).fetch_all(&mut *tx).await?;
+    tx.commit().await?;
+    Ok(out)
 }
 
 /// `source` follows the same pipe-separated multi-value convention as the
@@ -197,17 +209,21 @@ pub async fn list_distinct_tender_agencies(pool: &PgPool, source: &str) -> Resul
         query.push_str(" AND source <> 'gebiz'");
     }
     let vals = split_multi(source);
-    if !vals.is_empty() {
+    let mut tx = pool.begin().await?;
+    let out = if !vals.is_empty() {
         query.push_str(" AND source = ANY($1)");
         query.push_str(" ORDER BY agency");
-        return sqlx::query_scalar(sqlx::AssertSqlSafe(query))
+        sqlx::query_scalar(sqlx::AssertSqlSafe(query))
             .bind(vals)
             .persistent(false)
-            .fetch_all(pool)
-            .await;
-    }
-    query.push_str(" ORDER BY agency");
-    sqlx::query_scalar(sqlx::AssertSqlSafe(query)).persistent(false).fetch_all(pool).await
+            .fetch_all(&mut *tx)
+            .await?
+    } else {
+        query.push_str(" ORDER BY agency");
+        sqlx::query_scalar(sqlx::AssertSqlSafe(query)).persistent(false).fetch_all(&mut *tx).await?
+    };
+    tx.commit().await?;
+    Ok(out)
 }
 
 #[cfg(test)]
