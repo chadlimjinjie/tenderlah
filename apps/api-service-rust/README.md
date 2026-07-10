@@ -18,7 +18,7 @@ rustup-based deploy buildpacks install automatically.
 ```
 cp ../api-service/.env .env   # same env vars, verbatim
 make dev                      # or: cargo run
-make build                    # or: cargo build --release  (bin: api-server)
+make build                    # or: cargo build --release  (bin: api-service-rust)
 make test                     # or: cargo test
 ```
 

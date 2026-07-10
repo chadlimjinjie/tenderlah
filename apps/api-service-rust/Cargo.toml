@@ -6,10 +6,6 @@ edition = "2021"
 # cannot even parse their manifests. This makes old toolchains fail clearly.
 rust-version = "1.85"
 
-[[bin]]
-name = "api-server"
-path = "src/main.rs"
-
 [dependencies]
 axum = { version = "0.8", features = ["multipart"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
