@@ -103,7 +103,11 @@ async fn main() {
 
     let port = must_env("PORT", "4003");
     tracing::info!("Listening on :{port}");
-    let listener = match tokio::net::TcpListener::bind(format!("0.0.0.0:{port}")).await {
+    // Dual-stack listener (IPv6 + IPv4), reproducing Go's net.Listen(":port").
+    // Railway's private networking is IPv6-only, so an 0.0.0.0 bind is
+    // unreachable from the gateway; set_only_v6(false) makes the behaviour
+    // explicit on every platform (Windows defaults to v6-only).
+    let listener = match bind_dual_stack(&port) {
         Ok(l) => l,
         Err(err) => {
             eprintln!("listen :{port}: {err}");
@@ -118,4 +122,16 @@ async fn main() {
 
 async fn health() -> Json<serde_json::Value> {
     Json(json!({"ok": true, "service": "midtone-api", "version": "1.0.0"}))
+}
+
+fn bind_dual_stack(port: &str) -> std::io::Result<tokio::net::TcpListener> {
+    let addr: std::net::SocketAddr = format!("[::]:{port}")
+        .parse()
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("{e}")))?;
+    let socket = socket2::Socket::new(socket2::Domain::IPV6, socket2::Type::STREAM, Some(socket2::Protocol::TCP))?;
+    socket.set_only_v6(false)?; // accept IPv4 too, like Go
+    socket.bind(&addr.into())?;
+    socket.listen(1024)?;
+    socket.set_nonblocking(true)?;
+    tokio::net::TcpListener::from_std(socket.into())
 }
