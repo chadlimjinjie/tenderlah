@@ -6,6 +6,13 @@ against the Go service on live data), status codes, auth semantics, and env
 var names. The consumer is the external `apps/web-beta` Next.js frontend; the
 frozen contract reference is `../api-service/docs/swagger.json`.
 
+## Toolchain
+
+Requires **Rust ≥ 1.85** (the locked dependency tree uses edition2024 crates;
+older Cargo fails parsing e.g. `time-macros`' manifest). `rust-toolchain.toml`
+pins 1.96.1 — the version this port was built and verified with — which
+rustup-based deploy buildpacks install automatically.
+
 ## Run
 
 ```
