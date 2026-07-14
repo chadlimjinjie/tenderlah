@@ -1,0 +1,19 @@
+{
+  "name": "@tenderlah/eslint-config",
+  "version": "0.0.1",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    "./next": "./next.mjs"
+  },
+  "peerDependencies": {
+    "eslint": ">=9",
+    "eslint-config-next": "*"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "16.1.6"
+  }
+}

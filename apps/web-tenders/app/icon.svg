@@ -1,0 +1,9 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TenderLah">
+  <rect width="64" height="64" rx="15" fill="#ED2939"></rect>
+
+  <rect x="13" y="17" width="38" height="9" rx="4.5" fill="#FFFFFF"></rect>
+  <rect x="27" y="17" width="10" height="33" rx="5" fill="#FFFFFF"></rect>
+
+  <circle cx="48.5" cy="15.5" r="6.5" fill="#ED2939"></circle>
+  <circle cx="48.5" cy="15.5" r="4" fill="#FFFFFF"></circle>
+</svg>

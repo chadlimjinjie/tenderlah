@@ -1,0 +1,10 @@
+<svg width="232" height="56" viewBox="0 0 232 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TenderLah">
+  <rect x="0" y="0" width="56" height="56" rx="13" fill="#ED2939"></rect>
+  <rect x="11.5" y="15" width="33" height="7.8" rx="3.9" fill="#FFFFFF"></rect>
+  <rect x="23.7" y="15" width="8.7" height="29" rx="4.35" fill="#FFFFFF"></rect>
+  <circle cx="42.5" cy="13.5" r="5.7" fill="#ED2939"></circle>
+  <circle cx="42.5" cy="13.5" r="3.5" fill="#FFFFFF"></circle>
+  <text x="72" y="37.5" font-family="'Plus Jakarta Sans', sans-serif" font-size="29" font-weight="800" letter-spacing="-0.9">
+    <tspan fill="#161B22">Tender</tspan><tspan fill="#ED2939">Lah</tspan>
+  </text>
+</svg>
