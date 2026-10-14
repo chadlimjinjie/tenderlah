@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -6,9 +8,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { resetPasswordUrl } from "@/lib/auth/oidc"
 
-/** Passwords are managed by the auth-service; changing one goes through its emailed reset link. */
+/** Passwords are managed by the auth-service; changing one goes through an emailed reset link. */
 export function ChangePasswordForm() {
     return (
         <Card>
@@ -18,7 +19,7 @@ export function ChangePasswordForm() {
             </CardHeader>
             <CardContent>
                 <Button asChild variant="outline">
-                    <a href={resetPasswordUrl()}>Reset password</a>
+                    <Link href="/forgot-password">Reset password</Link>
                 </Button>
             </CardContent>
         </Card>
