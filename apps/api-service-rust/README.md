@@ -3,8 +3,8 @@
 Rust (axum) port of `apps/api-service` (Go/Gin) — the Midtone API. Strict
 behavior-compatible rewrite: same routes, JSON shapes (verified byte-for-byte
 against the Go service on live data), status codes, auth semantics, and env
-var names. The consumer is the external `apps/web-beta` Next.js frontend; the
-frozen contract reference is `../api-service/docs/swagger.json`.
+var names. The consumer is the external `apps/web-beta` Next.js frontend. The
+Go service has been removed; its `docs/swagger.json` contract lives in git history.
 
 ## Toolchain
 
@@ -16,7 +16,7 @@ rustup-based deploy buildpacks install automatically.
 ## Run
 
 ```
-cp ../api-service/.env .env   # same env vars, verbatim
+cp .env.example .env
 make dev                      # or: cargo run
 make build                    # or: cargo build --release  (bin: api-service-rust)
 make test                     # or: cargo test
@@ -38,8 +38,8 @@ service's mismatch, preserved deliberately).
 
 ## Notes / gaps vs the Go service
 
-- **Swagger UI (`/api/docs`) not ported** — returns 404. Use the Go service's
-  generated `docs/swagger.json` as the API reference.
+- **Swagger UI (`/api/docs`) not ported** — returns 404. The Go service's
+  generated `docs/swagger.json` is in git history.
 - **PgBouncer**: `DATABASE_URL` points at Supabase's transaction-mode pooler,
   so every query runs with `.persistent(false)` (unnamed prepared statements —
   the sqlx equivalent of pgx's `QueryExecModeCacheDescribe`). Don't remove
