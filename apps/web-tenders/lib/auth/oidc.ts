@@ -1,6 +1,6 @@
 // OIDC public client (auth code + PKCE) for chadlimjinjie's auth-service.
-// Our own sign-in/sign-up pages (features/auth) post their forms straight to it, so its session
-// cookie stays first-party; this module starts the authorize flow, redeems the code and keeps tokens fresh.
+// Sign-in, sign-up, social and password reset all happen on its hosted pages;
+// this module only starts the redirect, redeems the code and keeps tokens fresh.
 
 export const ISSUER = process.env.NEXT_PUBLIC_AUTH_ISSUER ?? "http://localhost:9080/auth/t/tenderlah"
 const CLIENT_ID = process.env.NEXT_PUBLIC_AUTH_CLIENT_ID ?? "web-tenders"
@@ -34,7 +34,7 @@ function b64url(bytes: Uint8Array): string {
 const randomString = () => b64url(crypto.getRandomValues(new Uint8Array(32)))
 
 /** Path of the authorize request, with a fresh PKCE verifier and state stored for the callback. */
-export async function authorizePath(returnTo: string): Promise<string> {
+async function authorizePath(returnTo: string): Promise<string> {
   const verifier = randomString()
   const state = randomString()
   const challenge = b64url(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))))
@@ -53,6 +53,11 @@ export async function authorizePath(returnTo: string): Promise<string> {
 
 export async function signIn(returnTo = "/") {
   window.location.assign(new URL(await authorizePath(returnTo), ISSUER).href)
+}
+
+export async function signUp(returnTo = "/") {
+  const q = new URLSearchParams({ return_to: await authorizePath(returnTo) })
+  window.location.assign(`${ISSUER}/sign-up?${q}`)
 }
 
 async function requestTokens(params: Record<string, string>) {
@@ -143,3 +148,6 @@ export function signOut() {
   if (idToken) q.set("id_token_hint", idToken)
   window.location.assign(`${ISSUER}/end-session?${q}`)
 }
+
+/** Hosted page for setting a new password via an emailed link. */
+export const resetPasswordUrl = () => `${ISSUER}/forgot-password`

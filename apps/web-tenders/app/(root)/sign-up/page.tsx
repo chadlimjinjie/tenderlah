@@ -1,11 +1,5 @@
-import { Suspense } from "react"
-
-import { SignUpForm } from "@/features/auth/components/auth-forms"
+import { AuthRedirect } from "@/features/auth/components/auth-redirect"
 
 export default function SignUpPage() {
-  return (
-    <Suspense>
-      <SignUpForm />
-    </Suspense>
-  )
+  return <AuthRedirect to="sign-up" />
 }
