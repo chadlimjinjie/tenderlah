@@ -13,7 +13,7 @@ import (
 
 type User struct {
 	ID                   string
-	Role                 *string // global role (e.g. "admin") from the "role" claim
+	Role                 *string // "admin" when the token's scope includes it
 	ActiveOrganizationID *string
 	ActiveTeamID         *string
 	ActiveOrgRole        *string
@@ -25,19 +25,21 @@ var (
 	once      sync.Once
 )
 
-// Init registers one or more JWKS endpoints (the Go auth-service used by
-// web-beta). A token is accepted if it verifies against any registered key set.
+// Init registers one or more OIDC issuers (chadlimjinjie auth-service tenants,
+// e.g. https://host/auth/t/tenderlah); their keys are fetched from {issuer}/jwks.
+// A token is accepted if it verifies against any registered key set and carries
+// that issuer as "iss".
 // Empty URLs are ignored, and a source that fails to warm at startup is logged
 // but non-fatal so the server still boots when the auth backend is temporarily
 // down.
-func Init(authServerURLs ...string) {
+func Init(issuers ...string) {
 	once.Do(func() {
 		jwksCache = jwk.NewCache(context.Background())
-		for _, base := range authServerURLs {
+		for _, base := range issuers {
 			if base == "" {
 				continue
 			}
-			url := base + "/api/auth/jwks"
+			url := base + "/jwks"
 			if err := jwksCache.Register(url); err != nil {
 				log.Printf("auth: failed to register JWKS URL %s: %v", url, err)
 				continue
@@ -61,7 +63,8 @@ func VerifyToken(tokenStr string) (*User, error) {
 			lastErr = fmt.Errorf("fetch jwks %s: %w", url, err)
 			continue
 		}
-		parsed, err := jwt.Parse([]byte(tokenStr), jwt.WithKeySet(keySet), jwt.WithValidate(true))
+		issuer := strings.TrimSuffix(url, "/jwks")
+		parsed, err := jwt.Parse([]byte(tokenStr), jwt.WithKeySet(keySet), jwt.WithValidate(true), jwt.WithIssuer(issuer))
 		if err != nil {
 			lastErr = fmt.Errorf("verify token: %w", err)
 			continue
@@ -88,11 +91,22 @@ func userFromToken(tok jwt.Token) (*User, error) {
 
 	return &User{
 		ID:                   id,
-		Role:                 optStringClaim(claims, "role"),
+		Role:                 roleFromScope(stringClaim(claims, "scope")),
 		ActiveOrganizationID: optStringClaim(claims, "activeOrganizationId"),
 		ActiveTeamID:         optStringClaim(claims, "activeTeamId"),
 		ActiveOrgRole:        optStringClaim(claims, "activeOrgRole"),
 	}, nil
+}
+
+// roleFromScope maps the auth-service's role scopes onto the global role: a user
+// holding a role that grants the "admin" scope is an admin.
+func roleFromScope(scope string) *string {
+	for _, s := range strings.Fields(scope) {
+		if s == "admin" {
+			return &s
+		}
+	}
+	return nil
 }
 
 func ParseBearer(authHeader string) (string, bool) {

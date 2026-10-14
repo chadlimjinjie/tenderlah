@@ -1,9 +1,5 @@
-import { SignInForm } from "@/features/auth/components/sign-in-form"
+import { AuthRedirect } from "@/features/auth/components/auth-redirect"
 
 export default function SignInPage() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center p-8">
-      <SignInForm />
-    </div>
-  )
+  return <AuthRedirect to="sign-in" />
 }

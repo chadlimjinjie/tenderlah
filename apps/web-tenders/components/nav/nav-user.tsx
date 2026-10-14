@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/sidebar"
 import { EllipsisVerticalIcon, CircleUserRoundIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 
-import { useSession, useSignOut } from "@/features/auth/hooks"
+import { useSession } from "@/features/auth/hooks"
+import { signOut } from "@/lib/auth/oidc"
 
 /** First letters of up to two name parts, e.g. "Ada Lovelace" → "AL". */
 function initials(name: string): string {
@@ -40,7 +41,6 @@ function initials(name: string): string {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const { data: user } = useSession()
-  const signOut = useSignOut()
 
   // The (user) route group is wrapped in AuthGuard, so a session is normally
   // present here; bail out defensively if it isn't.
@@ -109,10 +109,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              disabled={signOut.isPending}
-              onSelect={() => signOut.mutate()}
-            >
+            <DropdownMenuItem onSelect={signOut}>
               <LogOutIcon
               />
               Log out

@@ -37,7 +37,7 @@ async fn main() {
         )
         .init();
 
-    let jwks = auth::JwksVerifier::new(&must_env("AUTH_SERVICE_URL", "http://localhost:3100")).await;
+    let jwks = auth::JwksVerifier::new(&must_env("AUTH_ISSUER", "http://localhost:9080/auth/t/tenderlah")).await;
 
     let pool = match db::init(&must_env("DATABASE_URL", "")) {
         Ok(pool) => pool,

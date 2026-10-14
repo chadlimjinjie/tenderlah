@@ -33,7 +33,7 @@ func main() {
 	_ = godotenv.Load()
 
 	auth.Init(
-		mustEnv("AUTH_SERVICE_URL", "http://localhost:3100"),
+		mustEnv("AUTH_ISSUER", "http://localhost:9080/auth/t/tenderlah"),
 	)
 	db.Init(mustEnv("DATABASE_URL", ""))
 

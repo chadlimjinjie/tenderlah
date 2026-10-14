@@ -7,9 +7,7 @@
  */
 
 export * from './authErrorResponse';
-export * from './authUser';
 export * from './botActionResult';
-export * from './changePasswordRequest';
 export * from './conceptScore';
 export * from './createPersonaBody';
 export * from './deletePersona200';
@@ -20,7 +18,6 @@ export * from './downloadYtdlParams';
 export * from './getTenderFiltersParams';
 export * from './getYtdlInfoParams';
 export * from './healthResponse';
-export * from './linkedAccount';
 export * from './listTendersOpenState';
 export * from './listTendersParams';
 export * from './listTendersSortBy';
@@ -35,12 +32,6 @@ export * from './onboardingRequestAccountType';
 export * from './persona';
 export * from './registerDiscordBotBody';
 export * from './registerTelegramBotBody';
-export * from './requestPasswordResetRequest';
-export * from './resetPasswordRequest';
-export * from './signInRequest';
-export * from './signOutResponse';
-export * from './signUpRequest';
-export * from './successResponse';
 export * from './telegramBot';
 export * from './telegramBotStatus';
 export * from './tender';

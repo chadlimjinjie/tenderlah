@@ -3,11 +3,11 @@
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import { useSession, useSignOut } from "@/features/auth/hooks"
+import { useSession } from "@/features/auth/hooks"
+import { signOut } from "@/lib/auth/oidc"
 
 export function RootNavbar() {
   const { data: user, isPending } = useSession()
-  const signOut = useSignOut()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -25,12 +25,7 @@ export function RootNavbar() {
               <Button asChild variant="ghost" size="sm">
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => signOut.mutate()}
-                disabled={signOut.isPending}
-              >
+              <Button variant="outline" size="sm" onClick={signOut}>
                 Sign out
               </Button>
             </>

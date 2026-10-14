@@ -1,8 +1,9 @@
-//! JWT verification against the auth-service's remote JWKS
-//! ($AUTH_SERVICE_URL/api/auth/jwks). Port of internal/auth/jwks.go: the key
-//! set is warmed at startup non-fatally (the server must boot while the auth
-//! backend is down), served from cache, and refetched when a token arrives
-//! with an unknown kid (key rotation), rate-limited to once a minute.
+//! JWT verification against the auth-service tenant's remote JWKS
+//! ($AUTH_ISSUER/jwks); tokens must carry that issuer as "iss". Port of
+//! internal/auth/jwks.go: the key set is warmed at startup non-fatally (the
+//! server must boot while the auth backend is down), served from cache, and
+//! refetched when a token arrives with an unknown kid (key rotation),
+//! rate-limited to once a minute.
 
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -16,7 +17,7 @@ use tokio::sync::{Mutex, RwLock};
 #[derive(Debug, Clone)]
 pub struct AuthUser {
     pub id: String,
-    /// Global role (e.g. "admin") from the "role" claim.
+    /// "admin" when the token's scope includes it.
     pub role: Option<String>,
     // Claims below are carried for parity with the Go auth.User (used there
     // only by the unused RequireOrg middleware).
@@ -35,6 +36,7 @@ struct CachedKey {
 }
 
 pub struct JwksVerifier {
+    issuer: String,
     jwks_url: String,
     http: reqwest::Client,
     keys: RwLock<Vec<CachedKey>>,
@@ -44,9 +46,10 @@ pub struct JwksVerifier {
 impl JwksVerifier {
     /// Registers the JWKS endpoint and warms it. A fetch failure is logged but
     /// non-fatal, matching the Go auth.Init behaviour.
-    pub async fn new(auth_service_url: &str) -> Arc<Self> {
+    pub async fn new(issuer: &str) -> Arc<Self> {
         let v = Arc::new(Self {
-            jwks_url: format!("{auth_service_url}/api/auth/jwks"),
+            issuer: issuer.to_string(),
+            jwks_url: format!("{issuer}/jwks"),
             http: reqwest::Client::new(),
             keys: RwLock::new(Vec::new()),
             last_refresh: Mutex::new(None),
@@ -139,9 +142,10 @@ impl JwksVerifier {
             }
             tried = true;
             let mut validation = Validation::new(cached.alg);
-            // Go verifies exp/nbf when present but requires neither, and
-            // checks no audience/issuer (jwt.WithValidate(true)).
+            // Go verifies exp/nbf when present but requires neither, checks
+            // the issuer and no audience (jwt.WithValidate(true), WithIssuer).
             validation.required_spec_claims = HashSet::new();
+            validation.set_issuer(&[&self.issuer]);
             validation.validate_exp = true;
             validation.validate_nbf = true;
             validation.validate_aud = false;
@@ -188,11 +192,16 @@ fn user_from_claims(claims: &serde_json::Value) -> Result<AuthUser, String> {
     }
     Ok(AuthUser {
         id,
-        role: opt_string_claim(claims, "role"),
+        role: role_from_scope(&string_claim(claims, "scope")),
         active_organization_id: opt_string_claim(claims, "activeOrganizationId"),
         active_team_id: opt_string_claim(claims, "activeTeamId"),
         active_org_role: opt_string_claim(claims, "activeOrgRole"),
     })
+}
+
+/// The auth-service grants roles as scopes; holding "admin" makes a global admin.
+fn role_from_scope(scope: &str) -> Option<String> {
+    scope.split_whitespace().any(|s| s == "admin").then(|| "admin".to_string())
 }
 
 fn string_claim(claims: &serde_json::Value, key: &str) -> String {
@@ -208,4 +217,17 @@ fn opt_string_claim(claims: &serde_json::Value, key: &str) -> Option<String> {
 
 pub fn parse_bearer(auth_header: &str) -> Option<&str> {
     auth_header.strip_prefix("Bearer ")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::role_from_scope;
+
+    #[test]
+    fn admin_only_from_exact_scope() {
+        assert_eq!(role_from_scope("openid email admin").as_deref(), Some("admin"));
+        for scope in ["", "openid profile", "administrator"] {
+            assert_eq!(role_from_scope(scope), None, "{scope}");
+        }
+    }
 }
