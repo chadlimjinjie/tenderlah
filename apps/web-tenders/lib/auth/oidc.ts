@@ -17,6 +17,8 @@ export interface AuthUser {
   email: string
   name: string
   emailVerified: boolean
+  /** "admin" when the access token's scope grants it, mirroring the API's role_from_scope. */
+  role: "admin" | null
 }
 
 let accessToken: string | null = null
@@ -115,18 +117,26 @@ export async function getAccessToken(): Promise<string | null> {
   return inflight
 }
 
+function jwtClaims(token: string) {
+  const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload), (c) => c.charCodeAt(0))))
+}
+
 /** The signed-in user from the ID token, or null. */
 export async function getUser(): Promise<AuthUser | null> {
-  if (!(await getAccessToken())) return null
+  const token = await getAccessToken()
+  if (!token) return null
   const idToken = sessionStorage.getItem(ID_KEY)
   if (!idToken) return null
-  const payload = idToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")
-  const claims = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(payload), (c) => c.charCodeAt(0))))
+  const claims = jwtClaims(idToken)
+  // UI hint only; the API enforces admin itself.
+  const scope = String(jwtClaims(token).scope ?? "")
   return {
     id: claims.sub,
     email: claims.email ?? "",
     name: claims.name || claims.email || "",
     emailVerified: !!claims.email_verified,
+    role: scope.split(" ").includes("admin") ? "admin" : null,
   }
 }
 
