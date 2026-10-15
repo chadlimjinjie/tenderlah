@@ -15,6 +15,8 @@ const AUTH_COOKIE = "auth_session"
 
 /** Our own cookie holding the auth-service session, so sign-out can end it. */
 export const SID_COOKIE = "auth_sid"
+/** Our httpOnly cookie holding the refresh token, so it survives the tab and stays out of JS. */
+export const RT_COOKIE = "auth_rt"
 
 /** The user's browser details, so the auth-service records them on the session instead of ours. */
 function headersFor(req: Request, sid?: string): Record<string, string> {
@@ -72,6 +74,16 @@ export async function passwordSignUp(req: Request, name: string, email: string, 
   if (res.status !== 400) throw new Error(`auth-service sign-up returned ${res.status}`)
   const msg = /<p class="error" role="alert">([^<]*)<\/p>/.exec(await res.text())?.[1]
   return msg ? msg.replace(/&(amp|lt|gt|quot|#x27|#39);/g, (e) => entities[e]) : "Could not create the account."
+}
+
+/** Calls the token endpoint for this client; the body is the OAuth JSON reply or error. */
+export async function exchangeToken(params: Record<string, string>) {
+  const res = await fetch(`${BASE}/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: CLIENT_ID, ...params }),
+  })
+  return { ok: res.ok, body: await res.json().catch(() => ({})) }
 }
 
 /** Ends the auth-service session, which also revokes this client's refresh tokens. */

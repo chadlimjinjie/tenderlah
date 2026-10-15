@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { endSession, isJson, SID_COOKIE } from "@/lib/auth/service"
+import { endSession, isJson, RT_COOKIE, SID_COOKIE } from "@/lib/auth/service"
 
 export async function POST(req: NextRequest) {
   if (!isJson(req)) return NextResponse.json({ error: "Unsupported request" }, { status: 415 })
@@ -8,5 +8,6 @@ export async function POST(req: NextRequest) {
   if (sid) await endSession(req, sid)
   const res = NextResponse.json({ ok: true })
   res.cookies.delete({ name: SID_COOKIE, path: "/api/auth" })
+  res.cookies.delete({ name: RT_COOKIE, path: "/api/auth" })
   return res
 }

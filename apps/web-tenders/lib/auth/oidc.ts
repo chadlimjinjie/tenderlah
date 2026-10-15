@@ -6,10 +6,8 @@ export const ISSUER = process.env.NEXT_PUBLIC_AUTH_ISSUER ?? "http://localhost:9
 export const CLIENT_ID = process.env.NEXT_PUBLIC_AUTH_CLIENT_ID ?? "web-tenders"
 const SCOPE = "openid profile email offline_access"
 
-// ponytail: refresh/id tokens in sessionStorage are XSS-readable and end with the tab;
-// move to a BFF with an httponly cookie if that matters.
-const REFRESH_KEY = "auth.refresh_token"
-const ID_KEY = "auth.id_token"
+// The refresh token lives in an httpOnly cookie set by app/api/auth/token; access and ID tokens
+// stay in memory and are re-minted from it on each page load.
 const FLOW_KEY = "auth.flow"
 
 export interface AuthUser {
@@ -22,6 +20,7 @@ export interface AuthUser {
 }
 
 let accessToken: string | null = null
+let idToken: string | null = null
 let accessExpiry = 0
 let inflight: Promise<string | null> | null = null
 
@@ -73,19 +72,13 @@ export async function signUp(name: string, email: string, password: string) {
   await postAuth("sign-up", { name, email, password })
 }
 
+/** Redeems a code, or with an empty body the refresh cookie, through our route handler. */
 async function requestTokens(params: Record<string, string>) {
-  const res = await fetch(`${ISSUER}/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ client_id: CLIENT_ID, ...params }),
-  })
-  const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.error_description ?? body.error ?? "Sign-in failed")
+  const body = await postAuth("token", params)
   accessToken = body.access_token
+  idToken = body.id_token
   // refresh a minute early
   accessExpiry = Date.now() + (body.expires_in - 60) * 1000
-  if (body.refresh_token) sessionStorage.setItem(REFRESH_KEY, body.refresh_token)
-  if (body.id_token) sessionStorage.setItem(ID_KEY, body.id_token)
 }
 
 /** Redeems the authorization code; returns the path to continue to. */
@@ -96,29 +89,23 @@ export async function handleCallback(params: URLSearchParams): Promise<string> {
   if (error) throw new Error(params.get("error_description") ?? error)
   const code = params.get("code")
   if (!flow || !code || params.get("state") !== flow.state) throw new Error("Invalid sign-in response")
-  await requestTokens({
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: redirectUri(),
-    code_verifier: flow.verifier,
-  })
+  await requestTokens({ code, redirect_uri: redirectUri(), code_verifier: flow.verifier })
   return flow.returnTo
 }
 
 function clearTokens() {
   accessToken = null
+  idToken = null
   accessExpiry = 0
-  sessionStorage.removeItem(REFRESH_KEY)
-  sessionStorage.removeItem(ID_KEY)
 }
 
 /** A valid access token, refreshing it when near expiry; null when signed out. */
 export async function getAccessToken(): Promise<string | null> {
   if (typeof window === "undefined") return null
   if (accessToken && Date.now() < accessExpiry) return accessToken
-  const refreshToken = sessionStorage.getItem(REFRESH_KEY)
-  if (!refreshToken) return null
-  inflight ??= requestTokens({ grant_type: "refresh_token", refresh_token: refreshToken })
+  // Refresh tokens are single-use and a replay revokes them all, so tabs sharing the cookie take turns.
+  inflight ??= navigator.locks
+    .request("auth.refresh", () => requestTokens({}))
     .then(() => accessToken)
     .catch(() => {
       clearTokens()
@@ -139,7 +126,6 @@ function jwtClaims(token: string) {
 export async function getUser(): Promise<AuthUser | null> {
   const token = await getAccessToken()
   if (!token) return null
-  const idToken = sessionStorage.getItem(ID_KEY)
   if (!idToken) return null
   const claims = jwtClaims(idToken)
   // UI hint only; the API enforces admin itself.
