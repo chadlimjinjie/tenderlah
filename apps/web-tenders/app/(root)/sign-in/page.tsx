@@ -1,5 +1,5 @@
-import { AuthRedirect } from "@/features/auth/components/auth-redirect"
+import { SignInForm } from "@/features/auth/components/auth-forms"
 
 export default function SignInPage() {
-  return <AuthRedirect to="sign-in" />
+  return <SignInForm />
 }

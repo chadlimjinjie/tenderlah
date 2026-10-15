@@ -1,9 +1,9 @@
 // OIDC public client (auth code + PKCE) for chadlimjinjie's auth-service.
-// Sign-in, sign-up, social and password reset all happen on its hosted pages;
-// this module only starts the redirect, redeems the code and keeps tokens fresh.
+// Sign-in and sign-up use our own pages, bridged server-side by app/api/auth (lib/auth/service.ts);
+// password reset stays on its hosted pages. This module redeems the code and keeps tokens fresh.
 
 export const ISSUER = process.env.NEXT_PUBLIC_AUTH_ISSUER ?? "http://localhost:9080/auth/t/tenderlah"
-const CLIENT_ID = process.env.NEXT_PUBLIC_AUTH_CLIENT_ID ?? "web-tenders"
+export const CLIENT_ID = process.env.NEXT_PUBLIC_AUTH_CLIENT_ID ?? "web-tenders"
 const SCOPE = "openid profile email offline_access"
 
 // ponytail: refresh/id tokens in sessionStorage are XSS-readable and end with the tab;
@@ -51,13 +51,26 @@ async function authorizePath(returnTo: string): Promise<string> {
   return `${new URL(ISSUER).pathname}/authorize?${q}`
 }
 
-export async function signIn(returnTo = "/") {
-  window.location.assign(new URL(await authorizePath(returnTo), ISSUER).href)
+async function postAuth(path: string, body: object) {
+  const res = await fetch(`/api/auth/${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.")
+  return data
 }
 
-export async function signUp(returnTo = "/") {
-  const q = new URLSearchParams({ return_to: await authorizePath(returnTo) })
-  window.location.assign(`${ISSUER}/sign-up?${q}`)
+/** Signs in with email and password, then continues to the callback page that redeems the code. */
+export async function signIn(email: string, password: string, returnTo = "/") {
+  const { redirect } = await postAuth("sign-in", { email, password, authorize: await authorizePath(returnTo) })
+  window.location.assign(redirect)
+}
+
+/** Creates the account; the auth-service emails a verification link and allows signing in right away. */
+export async function signUp(name: string, email: string, password: string) {
+  await postAuth("sign-up", { name, email, password })
 }
 
 async function requestTokens(params: Record<string, string>) {
@@ -140,13 +153,11 @@ export async function getUser(): Promise<AuthUser | null> {
   }
 }
 
-/** Ends the local and the auth-service session. */
-export function signOut() {
-  const idToken = sessionStorage.getItem(ID_KEY)
+/** Ends the local and the auth-service session (revoking the refresh token). */
+export async function signOut() {
+  await postAuth("sign-out", {}).catch(() => {})
   clearTokens()
-  const q = new URLSearchParams({ client_id: CLIENT_ID, post_logout_redirect_uri: `${window.location.origin}/` })
-  if (idToken) q.set("id_token_hint", idToken)
-  window.location.assign(`${ISSUER}/end-session?${q}`)
+  window.location.assign("/")
 }
 
 /** Hosted page for setting a new password via an emailed link. */
